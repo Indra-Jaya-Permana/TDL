@@ -4,48 +4,63 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
-use App\Services\GmailService;
 
 class TaskController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
         $tasks = Task::orderBy('created_at', 'desc')->get();
         return view('tasks.index', compact('tasks'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
         return view('tasks.create');
     }
 
-    public function store(Request $request, GmailService $gmail)
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
     {
-        $task = Task::create($request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
-        ]));
+        ]);
 
-        $gmail->sendMail("Tugas baru ditambahkan: {$task->title}", "Detail: {$task->description}");
+        Task::create($validated);
 
         return redirect()->route('tasks.index')->with('success', 'Tugas berhasil ditambahkan!');
     }
 
-    public function update(Request $request, Task $task, GmailService $gmail)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Task $task)
     {
-        $task->update(['status' => $request->status]);
+        $validated = $request->validate([
+            'status' => 'required|in:pending,done',
+        ]);
 
-        if ($request->status === 'done') {
-            $gmail->sendMail("Tugas selesai: {$task->title}", "Detail: {$task->description}");
-        }
+        $task->update($validated);
 
-        return back()->with('success', 'Status tugas diperbarui!');
+        return redirect()->route('tasks.index')->with('success', 'Status tugas berhasil diubah!');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Task $task)
     {
         $task->delete();
-        return back()->with('success', 'Tugas dihapus!');
+
+        return redirect()->route('tasks.index')->with('success', 'Tugas berhasil dihapus!');
     }
 }

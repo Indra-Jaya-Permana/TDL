@@ -6,6 +6,13 @@ use App\Http\Controllers\Auth\GoogleController;
 use Illuminate\Support\Facades\Auth;
 
 // =======================
+// Default Route - Redirect to Login
+// =======================
+Route::get('/', function () {
+    return redirect('/login');
+});
+
+// =======================
 // Google Login Routes
 // =======================
 Route::get('/login', function () {
@@ -28,7 +35,7 @@ Route::post('/logout', function () {
 // ToDoList Routes
 // =======================
 Route::middleware('auth')->group(function () {
-    Route::get('/', [TaskController::class, 'index'])->name('tasks.index');
+    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
     Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
     Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');

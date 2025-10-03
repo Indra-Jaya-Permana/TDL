@@ -34,7 +34,7 @@ class GoogleController extends Controller
             // Login user
             Auth::login($user);
 
-            return redirect('/'); // arahkan ke dashboard/home
+            return redirect('/tasks'); // arahkan ke tasks
         } catch (\Exception $e) {
             return redirect('/login')->with('error', 'Gagal login dengan Google!');
         }
