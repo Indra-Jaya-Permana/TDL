@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class TaskController extends Controller
 {
@@ -33,7 +34,18 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
+            'due_time' => 'nullable|date_format:H:i',
         ]);
+
+        // Gabungkan tanggal dan waktu
+        if ($request->due_date && $request->due_time) {
+            $validated['due_date'] = Carbon::parse($request->due_date . ' ' . $request->due_time);
+        } elseif ($request->due_date) {
+            $validated['due_date'] = Carbon::parse($request->due_date)->endOfDay();
+        }
+
+        // Hapus due_time karena tidak ada di database
+        unset($validated['due_time']);
 
         Task::create($validated);
 
