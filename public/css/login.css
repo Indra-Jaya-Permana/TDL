@@ -1,0 +1,125 @@
+.login-container {
+    min-height: 80vh;
+    background: linear-gradient(135deg, #FFE1A2 0%, #FFB97B 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(255, 185, 123, 0.3);
+    animation: slideUp 0.6s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 32px;
+}
+
+.alert-custom {
+    background: #fff3e0;
+    border: 1px solid #FFB97B;
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #d84315;
+    font-size: 14px;
+    margin-bottom: 24px;
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.btn-google {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #FFB97B 0%, #FF9F5A 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 185, 123, 0.4);
+    text-decoration: none;
+}
+
+.btn-google:hover {
+    background: linear-gradient(135deg, #FF9F5A 0%, #FF8A40 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 185, 123, 0.6);
+    color: white;
+}
+
+.btn-google:active {
+    transform: translateY(0);
+}
+
+.btn-google i {
+    font-size: 20px;
+}
+
+.decorative-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 225, 162, 0.3);
+    pointer-events: none;
+}
+
+.circle-1 {
+    width: 150px;
+    height: 150px;
+    top: -50px;
+    right: -50px;
+}
+
+.circle-2 {
+    width: 100px;
+    height: 100px;
+    bottom: -30px;
+    left: -30px;
+    background: rgba(255, 185, 123, 0.3);
+}
+
+.footer-text {
+    text-align: center;
+    margin-top: 24px;
+    color: #666;
+    font-size: 13px;
+}
