@@ -17,6 +17,17 @@
                     <i class="fas fa-check-double"></i> Tandai Semua Terbaca
                 </button>
             </form>
+            {{-- Tombol Hapus Semua --}}
+            <form action="{{ route('notifications.deleteAll') }}" method="POST"
+                onsubmit="return confirm('Yakin ingin menghapus semua notifikasi?')"
+                style="display: inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i> Hapus Semua
+                </button>
+            </form>
+
         </div>
     </div>
 
