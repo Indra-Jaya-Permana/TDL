@@ -30,7 +30,6 @@ Route::post('/logout', function () {
     return redirect('/login');
 })->name('logout');
 
-
 // =======================
 // ToDoList Routes
 // =======================

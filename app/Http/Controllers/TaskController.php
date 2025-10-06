@@ -5,15 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
+    // HAPUS method __construct() - tidak perlu lagi karena sudah ada middleware di route
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $tasks = Task::orderBy('created_at', 'desc')->get();
+        // Hanya ambil task milik user yang sedang login
+        $tasks = Auth::user()->tasks()
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
         return view('tasks.index', compact('tasks'));
     }
 
@@ -47,6 +54,9 @@ class TaskController extends Controller
         // Hapus due_time karena tidak ada di database
         unset($validated['due_time']);
 
+        // Tambahkan user_id dari user yang sedang login
+        $validated['user_id'] = Auth::id();
+
         Task::create($validated);
 
         return redirect()->route('tasks.index')->with('success', 'Tugas berhasil ditambahkan!');
@@ -57,6 +67,11 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task)
     {
+        // Pastikan task milik user yang sedang login
+        if ($task->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $validated = $request->validate([
             'status' => 'required|in:pending,done',
         ]);
@@ -71,6 +86,11 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
+        // Pastikan task milik user yang sedang login
+        if ($task->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $task->delete();
 
         return redirect()->route('tasks.index')->with('success', 'Tugas berhasil dihapus!');
