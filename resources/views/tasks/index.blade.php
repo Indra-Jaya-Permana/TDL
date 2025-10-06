@@ -102,6 +102,12 @@
 
                     {{-- Task Actions --}}
                     <div class="task-actions">
+                        {{-- Tombol Edit --}}
+                        <a href="{{ route('tasks.edit', $task) }}" class="btn-action btn-edit">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        
+                        {{-- Tombol Toggle Status --}}
                         <form action="{{ route('tasks.update', $task) }}" method="POST" class="action-form">
                             @csrf @method('PUT')
                             <input type="hidden" name="status" value="{{ $task->status == 'pending' ? 'done' : 'pending' }}">
@@ -114,6 +120,7 @@
                             </button>
                         </form>
                         
+                        {{-- Tombol Hapus --}}
                         <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="action-form" onsubmit="return confirm('Yakin ingin menghapus tugas ini?')">
                             @csrf @method('DELETE')
                             <button class="btn-action btn-delete" type="submit">
