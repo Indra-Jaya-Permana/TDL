@@ -3,6 +3,90 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/task-list.css') }}">
 
+<style>
+/* Style khusus untuk tombol notifikasi */
+.btn-notification {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-notification:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.notification-bell {
+    font-size: 18px;
+    animation: bellRing 2s infinite;
+}
+
+@keyframes bellRing {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30% { transform: rotate(-10deg); }
+    20%, 40% { transform: rotate(10deg); }
+}
+
+.notification-badge-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    border: 3px solid white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.header-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-buttons {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .btn-notification,
+    .btn-add-task {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
 <div class="task-list-container">
     <div class="task-list-wrapper">
         {{-- Header Section --}}
@@ -16,10 +100,20 @@
                     <p class="page-subtitle">Kelola semua tugas Anda di sini</p>
                 </div>
             </div>
-            <a href="{{ route('tasks.create') }}" class="btn-add-task">
-                <i class="fas fa-plus"></i>
-                <span>Tambah Tugas</span>
-            </a>
+            <div class="header-buttons">
+                {{-- Tombol Notifikasi dengan Badge --}}
+                <a href="{{ route('notifications.index') }}" class="btn-notification" id="notificationBtn">
+                    <i class="fas fa-bell notification-bell"></i>
+                    <span>Notifikasi</span>
+                    <span class="notification-badge-count" id="notificationBadge" style="display: none;">0</span>
+                </a>
+
+                {{-- Tombol Tambah Tugas --}}
+                <a href="{{ route('tasks.create') }}" class="btn-add-task">
+                    <i class="fas fa-plus"></i>
+                    <span>Tambah Tugas</span>
+                </a>
+            </div>
         </div>
 
         {{-- Success Alert --}}
@@ -144,6 +238,31 @@
         </div>
     </div>
 </div>
+
+{{-- Script untuk Update Badge Notifikasi Realtime --}}
+<script>
+    // Fungsi untuk update badge notifikasi
+    function updateNotificationBadge() {
+        fetch('{{ route("notifications.unread-count") }}')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('notificationBadge');
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error fetching notification count:', error));
+    }
+
+    // Update badge saat halaman load
+    updateNotificationBadge();
+
+    // Update badge setiap 30 detik
+    setInterval(updateNotificationBadge, 30000);
+</script>
 
 <script src="{{ asset('js/task-list.js') }}"></script>
 @endsection
