@@ -81,9 +81,19 @@
                             <span class="unread-badge">Baru</span>
                         @endif
                     </div>
-                    
-                    <p class="notif-message">{{ $notification->message }}</p>
-                    
+  
+                    @php
+                        $msg = $notification->message;
+
+                        // Potong hanya bagian deskripsi
+                        if (preg_match('/📝\s*Deskripsi:\s*(.+?)\s*🗓️/su', $msg, $matches)) {
+                            $fullDesc = trim($matches[1]);
+                            $shortDesc = \Illuminate\Support\Str::limit($fullDesc, 60, '...');
+                            // Ganti hanya deskripsi panjang
+                            $msg = preg_replace('/(📝\s*Deskripsi:\s*)(.+?)(\s*🗓️)/su', '$1' . $shortDesc . '$3', $msg);
+                        }
+                    @endphp
+                    <p class="notif-message">{{ $msg }}</p>     
                     <div class="notif-meta">
                         <span class="notif-time">
                             <i class="fas fa-clock"></i>

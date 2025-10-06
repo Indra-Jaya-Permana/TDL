@@ -399,3 +399,16 @@
         justify-content: center;
     }
 }
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.task-description {
+    margin-bottom: 12px;
+}
+
+.description-preview {
+    line-height: 1.5;
+    color: #4a5568;
+}

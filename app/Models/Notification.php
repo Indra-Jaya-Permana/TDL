@@ -57,4 +57,15 @@ class Notification extends Model
             'read_at' => now()
         ]);
     }
+
+    public function sendNotificationEmail()
+    {
+        try {
+            \Mail::to($this->user->email)->send(new \App\Mail\NotificationMail($this));
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('Gagal mengirim email notifikasi: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
