@@ -8,8 +8,13 @@
 
 @section('content')
 <div class="notifications-page">
+
+    <a href="{{ route('tasks.index') }}" class="btn-back">
+        <i class="fas fa-arrow-left"></i>
+        Back to Tasks
+    </a>
     <div class="notifications-header">
-        <h1><i class="fas fa-bell"></i> Notifikasi</h1>
+        <h1>Notifikasi</h1>
         <div class="header-actions">
             <form action="{{ route('notifications.read-all') }}" method="POST" style="display: inline;">
                 @csrf

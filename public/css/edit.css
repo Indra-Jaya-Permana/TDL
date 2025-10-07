@@ -1,17 +1,49 @@
-.create-task-container {
+/* ============================================
+   CREATE TASK - BLUE MODERN THEME
+   ============================================ */
+
+   .create-task-container {
     min-height: 80vh;
-    background: linear-gradient(135deg, #FFE1A2 0%, #FFB97B 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
     padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
 }
 
+/* Animated background effect */
+.create-task-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(96, 165, 250, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.2) 0%, transparent 50%);
+    animation: bgRotate 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes bgRotate {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-5%, -5%) rotate(360deg); }
+}
+
+/* ----- TASK CARD ----- */
 .task-card {
     max-width: 800px;
     margin: 0 auto;
     background: white;
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 20px 60px rgba(255, 185, 123, 0.3);
+    box-shadow: 0 20px 60px rgba(30, 58, 138, 0.3);
     animation: slideUp 0.6s ease;
+    position: relative;
+    z-index: 1;
+    border-top: 5px solid transparent;
+    border-image: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%) 1;
+    border-image-slice: 1 0 0 0;
 }
 
 @keyframes slideUp {
@@ -25,6 +57,7 @@
     }
 }
 
+/* ----- CARD HEADER ----- */
 .card-header-custom {
     text-align: center;
     margin-bottom: 35px;
@@ -37,27 +70,37 @@
     justify-content: center;
     width: 70px;
     height: 70px;
-    background: linear-gradient(135deg, #FFB97B 0%, #FF9F5A 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     border-radius: 50%;
     color: white;
     font-size: 32px;
     margin-bottom: 20px;
-    box-shadow: 0 8px 20px rgba(255, 185, 123, 0.4);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 12px 30px rgba(59, 130, 246, 0.6); }
 }
 
 .card-title {
     font-size: 28px;
     font-weight: 700;
-    color: #333;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 8px;
 }
 
 .card-subtitle {
-    color: #666;
+    color: #64748b;
     font-size: 14px;
     margin: 0;
 }
 
+/* ----- ALERT CUSTOM ----- */
 .alert-custom {
     border-radius: 12px;
     padding: 16px;
@@ -74,37 +117,47 @@
 }
 
 .alert-danger-custom {
-    background: #fff3e0;
-    border: 1px solid #FFB97B;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 2px solid #fca5a5;
+    border-left: 5px solid #ef4444;
 }
 
 .alert-icon {
     font-size: 24px;
-    color: #d84315;
+    color: #dc2626;
 }
 
 .alert-content {
     flex: 1;
-    color: #d84315;
+    color: #991b1b;
 }
 
 .alert-content strong {
     display: block;
     margin-bottom: 8px;
+    color: #7f1d1d;
+    font-size: 15px;
 }
 
 .alert-content ul {
     list-style: none;
     padding: 0;
+    margin: 0;
+}
+
+.alert-content ul li {
+    padding: 4px 0;
+    font-size: 14px;
 }
 
 .alert-content ul li::before {
     content: "• ";
-    color: #FF9F5A;
+    color: #ef4444;
     font-weight: bold;
     margin-right: 8px;
 }
 
+/* ----- TASK FORM ----- */
 .task-form {
     margin-top: 30px;
 }
@@ -119,46 +172,57 @@
     gap: 8px;
     font-size: 14px;
     font-weight: 600;
-    color: #333;
+    color: #1e3a8a;
     margin-bottom: 10px;
 }
 
 .form-label-custom i {
-    color: #FFB97B;
+    color: #3b82f6;
     font-size: 16px;
 }
 
+/* ----- FORM INPUTS ----- */
 .form-input-custom,
 .form-textarea-custom {
     width: 100%;
     padding: 12px 16px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid #e2e8f0;
     border-radius: 10px;
     font-size: 15px;
     transition: all 0.3s ease;
-    background: #fafafa;
+    background: #f8fafc;
+    color: #1e293b;
 }
 
 .form-input-custom:focus,
 .form-textarea-custom:focus {
     outline: none;
-    border-color: #FFB97B;
+    border-color: #3b82f6;
     background: white;
-    box-shadow: 0 0 0 4px rgba(255, 185, 123, 0.1);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    transform: translateY(-1px);
+}
+
+.form-input-custom:hover,
+.form-textarea-custom:hover {
+    border-color: #94a3b8;
 }
 
 .form-textarea-custom {
     resize: vertical;
     font-family: inherit;
+    min-height: 120px;
 }
 
 .form-hint {
     display: block;
     margin-top: 6px;
     font-size: 12px;
-    color: #999;
+    color: #64748b;
+    font-style: italic;
 }
 
+/* ----- FORM ROW ----- */
 .form-row-custom {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -169,22 +233,42 @@
     .form-row-custom {
         grid-template-columns: 1fr;
     }
+    
+    .task-card {
+        padding: 30px 20px;
+    }
+    
+    .card-title {
+        font-size: 24px;
+    }
 }
 
+/* ----- FORM ACTIONS ----- */
 .form-actions {
     display: flex;
     gap: 12px;
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 2px solid #f5f5f5;
+    border-top: 2px solid #f1f5f9;
 }
 
 @media (max-width: 576px) {
     .form-actions {
         flex-direction: column;
     }
+    
+    .task-card {
+        padding: 25px 15px;
+    }
+    
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+    }
 }
 
+/* ----- BUTTONS ----- */
 .btn-submit,
 .btn-cancel {
     flex: 1;
@@ -200,31 +284,152 @@
     transition: all 0.3s ease;
     cursor: pointer;
     text-decoration: none;
+    position: relative;
+    overflow: hidden;
 }
 
+/* Submit Button */
 .btn-submit {
-    background: linear-gradient(135deg, #FFB97B 0%, #FF9F5A 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(255, 185, 123, 0.4);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.btn-submit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
 }
 
 .btn-submit:hover {
-    background: linear-gradient(135deg, #FF9F5A 0%, #FF8A40 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 185, 123, 0.6);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
 }
 
+.btn-submit:hover::before {
+    left: 100%;
+}
+
+/* Cancel Button */
 .btn-cancel {
-    background: #f5f5f5;
-    color: #666;
+    background: #f1f5f9;
+    color: #475569;
+    border: 2px solid #e2e8f0;
 }
 
 .btn-cancel:hover {
-    background: #e0e0e0;
-    color: #333;
+    background: #e2e8f0;
+    color: #1e293b;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
 }
 
 .btn-submit:active,
 .btn-cancel:active {
     transform: translateY(0);
+}
+
+/* Loading state for submit button */
+.btn-submit:disabled {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ----- INPUT FILE ----- */
+input[type="file"].form-input-custom {
+    padding: 10px;
+    cursor: pointer;
+}
+
+input[type="file"].form-input-custom::file-selector-button {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-right: 12px;
+    transition: all 0.3s ease;
+}
+
+input[type="file"].form-input-custom::file-selector-button:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    transform: scale(1.05);
+}
+
+/* ----- CHECKBOX & RADIO ----- */
+input[type="checkbox"],
+input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #3b82f6;
+    cursor: pointer;
+}
+
+/* ----- REQUIRED INDICATOR ----- */
+.form-label-custom .required {
+    color: #ef4444;
+    margin-left: 2px;
+}
+
+/* ----- SUCCESS MESSAGE ----- */
+.alert-success-custom {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 2px solid #86efac;
+    border-left: 5px solid #22c55e;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.alert-success-custom i {
+    color: #16a34a;
+    font-size: 24px;
+}
+
+.alert-success-custom .alert-content {
+    color: #166534;
+}
+
+/* ----- FORM VALIDATION STYLES ----- */
+.form-input-custom.is-invalid,
+.form-textarea-custom.is-invalid {
+    border-color: #ef4444;
+}
+
+.form-input-custom.is-invalid:focus,
+.form-textarea-custom.is-invalid:focus {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+}
+
+.form-input-custom.is-valid,
+.form-textarea-custom.is-valid {
+    border-color: #22c55e;
+}
+
+.form-input-custom.is-valid:focus,
+.form-textarea-custom.is-valid:focus {
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
 }

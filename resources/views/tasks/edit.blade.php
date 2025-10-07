@@ -5,8 +5,13 @@
 @endsection
 
 @section('content')
-<div class="create-task-container">
-    <div class="task-card">
+
+            <a href="{{ route('tasks.index') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Back to Tasks
+            </a>
+
+
         {{-- Header --}}
         <div class="card-header-custom">
             <div class="header-icon">
@@ -101,9 +106,6 @@
                 </a>
             </div>
         </form>
-    </div>
-</div>
-
 <script>
 // Auto-enable time input ketika tanggal dipilih
 document.getElementById('due_date').addEventListener('change', function() {
