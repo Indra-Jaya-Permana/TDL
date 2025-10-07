@@ -1,0 +1,101 @@
+/* Font untuk kesan modern & profesional */
+* {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Reset navbar Bootstrap */
+.navbar-custom {
+    background: #FFFFFF !important;
+    backdrop-filter: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-bottom: 3px solid #4CAF50;
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+}
+
+/* Navbar brand styling */
+.navbar-custom .navbar-brand {
+    color: #2C3E50 !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+    text-shadow: none;
+    transition: all 0.3s ease;
+}
+
+.navbar-custom .navbar-brand:hover {
+    color: #4CAF50 !important;
+    text-shadow: none;
+    transform: translateY(-2px);
+}
+
+/* Remove animations */
+.navbar-custom::before {
+    display: none;
+}
+
+.navbar-custom .navbar-brand::after {
+    display: none;
+}
+
+/* Button styling - mirip Diskominfo */
+.navbar-custom .btn-outline-light {
+    border: 2px solid #4CAF50 !important;
+    color: #4CAF50 !important;
+    background: #FFFFFF !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-transform: capitalize;
+}
+
+.navbar-custom .btn-outline-light::before {
+    display: none;
+}
+
+.navbar-custom .btn-outline-light:hover {
+    background: #4CAF50 !important;
+    border-color: #4CAF50 !important;
+    color: #FFFFFF !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.25);
+}
+
+/* Body styling - bersih seperti website pemerintah */
+body {
+    background: #F5F7FA !important;
+    min-height: 100vh;
+}
+
+body::before {
+    display: none;
+}
+
+/* Container styling - card putih bersih */
+main.container {
+    background: #FFFFFF;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid #E8E8E8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-custom .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .navbar-custom .btn-outline-light {
+        padding: 0.4rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    main.container {
+        padding: 1.5rem;
+    }
+}
