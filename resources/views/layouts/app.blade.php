@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="task-list.css">
         <script src="task-list.js"></script>
+    <link rel="stylesheet" href="{{ asset('css/task-list-custom.css') }}">
     <!-- Tambahkan yield styles di sini -->
     @yield('styles')
 </head>

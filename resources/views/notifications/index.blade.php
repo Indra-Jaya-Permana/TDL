@@ -17,6 +17,17 @@
                     <i class="fas fa-check-double"></i> Tandai Semua Terbaca
                 </button>
             </form>
+            {{-- Tombol Hapus Semua --}}
+            <form action="{{ route('notifications.deleteAll') }}" method="POST"
+                onsubmit="return confirm('Yakin ingin menghapus semua notifikasi?')"
+                style="display: inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i> Hapus Semua
+                </button>
+            </form>
+
         </div>
     </div>
 
@@ -70,9 +81,19 @@
                             <span class="unread-badge">Baru</span>
                         @endif
                     </div>
-                    
-                    <p class="notif-message">{{ $notification->message }}</p>
-                    
+  
+                    @php
+                        $msg = $notification->message;
+
+                        // Potong hanya bagian deskripsi
+                        if (preg_match('/📝\s*Deskripsi:\s*(.+?)\s*🗓️/su', $msg, $matches)) {
+                            $fullDesc = trim($matches[1]);
+                            $shortDesc = \Illuminate\Support\Str::limit($fullDesc, 60, '...');
+                            // Ganti hanya deskripsi panjang
+                            $msg = preg_replace('/(📝\s*Deskripsi:\s*)(.+?)(\s*🗓️)/su', '$1' . $shortDesc . '$3', $msg);
+                        }
+                    @endphp
+                    <p class="notif-message">{{ $msg }}</p>     
                     <div class="notif-meta">
                         <span class="notif-time">
                             <i class="fas fa-clock"></i>
