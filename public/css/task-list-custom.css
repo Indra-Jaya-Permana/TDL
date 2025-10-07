@@ -1,0 +1,497 @@
+/* Style khusus untuk tombol notifikasi */
+.btn-notification {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-notification:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 136, 229, 0.4);
+    color: white;
+}
+
+.notification-bell {
+    font-size: 18px;
+    animation: bellRing 2s infinite;
+}
+
+@keyframes bellRing {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30% { transform: rotate(-10deg); }
+    20%, 40% { transform: rotate(10deg); }
+}
+
+.notification-badge-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    border: 3px solid white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.header-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Modal Styles */
+.task-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 882px;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.modal-header {
+    padding: 28px 32px 20px;
+    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    text-align: center;
+    position: relative;
+}
+
+.modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.modal-subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0;
+    font-weight: 400;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.modal-body {
+    padding: 0;
+}
+
+/* Task Preview in Card */
+.task-preview {
+    padding: 20px 0 16px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.preview-content {
+    padding: 0 32px;
+}
+
+.preview-description {
+    color: #5f6368;
+    line-height: 1.6;
+    font-size: 15px;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.show-more-btn {
+    background: none;
+    border: none;
+    color: #1e88e5;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.show-more-btn:hover {
+    color: #1565c0;
+    transform: translateX(2px);
+}
+
+/* Task Details in Modal */
+.task-details {
+    padding: 24px 32px 32px;
+}
+
+.detail-section {
+    margin-bottom: 24px;
+}
+
+.detail-section:last-child {
+    margin-bottom: 0;
+}
+
+.detail-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #3c4043;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-title i {
+    color: #1e88e5;
+    width: 16px;
+}
+
+.detail-content {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #1e88e5;
+}
+
+.description-full {
+    color: #5f6368;
+    line-height: 1.7;
+    font-size: 15px;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #5f6368;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.info-label i {
+    color: #1e88e5;
+    width: 16px;
+}
+
+.info-value {
+    font-weight: 600;
+    color: #3c4043;
+    font-size: 14px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background: #fffaf0;
+    color: #ed8936;
+    border: 1px solid #fed7aa;
+}
+
+.status-done {
+    background: #f0fff4;
+    color: #38a169;
+    border: 1px solid #9ae6b4;
+}
+
+/* Timeline Info */
+.timeline-info {
+    background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+    border-left: 4px solid #e53e3e;
+}
+
+.timeline-info.normal {
+    background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+    border-left: 4px solid #38a169;
+}
+
+.timeline-info.urgent {
+    background: linear-gradient(135deg, #fffaf0 0%, #fed7aa 100%);
+    border-left: 4px solid #ed8936;
+}
+
+.timeline-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.timeline-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(229, 62, 62, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.timeline-icon.normal {
+    background: rgba(56, 161, 105, 0.1);
+}
+
+.timeline-icon.urgent {
+    background: rgba(237, 137, 54, 0.1);
+}
+
+.timeline-icon i {
+    font-size: 18px;
+    color: #e53e3e;
+}
+
+.timeline-icon.normal i {
+    color: #38a169;
+}
+
+.timeline-icon.urgent i {
+    color: #ed8936;
+}
+
+.timeline-text {
+    flex: 1;
+}
+
+.timeline-title {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 14px;
+    margin: 0 0 4px 0;
+}
+
+.timeline-subtitle {
+    color: #718096;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Modal Footer */
+.modal-footer {
+    padding: 20px 32px 28px;
+    text-align: center;
+    border-top: 1px solid #f1f3f4;
+}
+
+.btn-close-modal {
+    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
+}
+
+.btn-close-modal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 136, 229, 0.4);
+}
+
+/* Improved Task Card Description */
+.task-description-compact {
+    color: #5f6368;
+    line-height: 1.5;
+    font-size: 14px;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 4.5em;
+}
+
+.view-details-btn {
+    background: none;
+    border: none;
+    color: #1e88e5;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.view-details-btn:hover {
+    color: #1565c0;
+    transform: translateX(2px);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-buttons {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .btn-notification,
+    .btn-add-task {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 20px auto;
+        max-width: 400px;
+    }
+    
+    .modal-header {
+        padding: 24px 20px 16px;
+    }
+    
+    .modal-title {
+        font-size: 20px;
+    }
+    
+    .preview-content,
+    .task-details {
+        padding: 20px;
+    }
+    
+    .modal-footer {
+        padding: 16px 20px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 98%;
+        max-width: 360px;
+    }
+    
+    .modal-header {
+        padding: 20px 16px 14px;
+    }
+    
+    .preview-content,
+    .task-details {
+        padding: 16px;
+    }
+    
+    .detail-content {
+        padding: 16px;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+}
