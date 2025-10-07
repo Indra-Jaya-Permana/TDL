@@ -3,8 +3,7 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 
-<div class="login-container">
-    <div class="login-card">
+
         <div class="decorative-circle circle-1"></div>
         <div class="decorative-circle circle-2"></div>
         

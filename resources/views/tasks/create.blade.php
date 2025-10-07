@@ -3,8 +3,10 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/create-task.css') }}">
 
-<div class="create-task-container">
-    <div class="task-card">
+            <a href="{{ route('tasks.index') }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Back to Tasks
+            </a>
         <div class="card-header-custom">
             <div class="header-icon">
                 <i class="fas fa-plus-circle"></i>
