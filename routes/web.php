@@ -58,3 +58,4 @@ Route::get('/notifications/api', [NotificationController::class, 'api'])->name('
 Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 });
+
