@@ -3,6 +3,7 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/task-list.css') }}">
 <link rel="stylesheet" href="{{ asset('css/task-list-custom.css') }}">
+<link rel="stylesheet" href="{{ asset('css/export-dropdown.css') }}">
 
 <div class="task-list-container">
     <div class="task-list-wrapper">
@@ -18,6 +19,26 @@
                 </div>
             </div>
             <div class="header-buttons">
+                {{-- Tombol Export --}}
+                <div class="export-dropdown">
+                    <button class="btn-export" id="exportBtn">
+                        <i class="fas fa-file-export"></i>
+                        <span>Export</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="export-menu" id="exportMenu">
+                        <a href="{{ route('tasks.export.excel') }}" class="export-item">
+                            <i class="fas fa-file-excel"></i>
+                            <span>Export ke Excel</span>
+                        </a>
+                        </a>
+                        <a href="{{ route('tasks.export.google-sheets') }}" class="export-item">
+                            <i class="fab fa-google"></i>
+                            <span>Export ke Google Sheets</span>
+                        </a>
+                    </div>
+                </div>
+
                 {{-- Tombol Notifikasi dengan Badge --}}
                 <a href="{{ route('notifications.index') }}" class="btn-notification" id="notificationBtn">
                     <i class="fas fa-bell notification-bell"></i>
@@ -254,7 +275,7 @@
         {{-- Modal Footer --}}
         <div class="modal-footer">
             <button class="btn-close-modal" onclick="closeTaskModal()">
-             Tutup Detail
+                Tutup Detail
             </button>
         </div>
     </div>
@@ -435,4 +456,5 @@ setInterval(updateNotificationBadge, 30000);
 </script>
 
 <script src="{{ asset('js/task-list.js') }}"></script>
+<script src="{{ asset('js/export-dropdown.js') }}"></script>
 @endsection

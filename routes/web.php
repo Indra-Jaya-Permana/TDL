@@ -54,8 +54,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notifications/deleteAll', [NotificationController::class, 'deleteAll'])->name('notifications.deleteAll');
 
     // API untuk dropdown notification
-Route::get('/notifications/api', [NotificationController::class, 'api'])->name('notifications.api');
-Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
-Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/notifications/api', [NotificationController::class, 'api'])->name('notifications.api');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+
+    Route::get('/tasks/export/excel', [TaskController::class, 'exportToExcel'])
+        ->name('tasks.export.excel');
+    
+    // Export ke Google Sheets (TSV)
+    Route::get('/tasks/export/google-sheets', [TaskController::class, 'exportToGoogleSheets'])
+        ->name('tasks.export.google-sheets');
 });
 
