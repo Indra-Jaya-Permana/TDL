@@ -31,13 +31,18 @@
                             <i class="fas fa-file-excel"></i>
                             <span>Export ke Excel</span>
                         </a>
-                        </a>
                         <a href="{{ route('tasks.export.google-sheets') }}" class="export-item">
                             <i class="fab fa-google"></i>
                             <span>Export ke Google Sheets</span>
                         </a>
                     </div>
                 </div>
+
+
+                <a href="{{ route('tasks.import.form') }}" class="btn-import" style="background: #10b981;">
+                    <i class="fas fa-file-import"></i>
+                    <span>Import</span>
+                </a>
 
                 {{-- Tombol Notifikasi dengan Badge --}}
                 <a href="{{ route('notifications.index') }}" class="btn-notification" id="notificationBtn">

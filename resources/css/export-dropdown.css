@@ -1,0 +1,178 @@
+/* ===================================
+   Export Dropdown Styles
+   =================================== */
+
+/* Export Button Container */
+.export-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Export Button */
+.btn-export {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.btn-export i {
+    font-size: 1rem;
+}
+
+.btn-export .fa-chevron-down {
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-export.active .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* Export Dropdown Menu */
+.export-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 220px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.export-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Export Menu Items */
+.export-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.export-item:last-child {
+    border-bottom: none;
+}
+
+.export-item:hover {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #2563eb;
+    padding-left: 1.5rem;
+}
+
+.export-item i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.export-item .fa-file-excel {
+    color: #10b981;
+}
+
+.export-item .fa-google {
+    color: #ef4444;
+}
+
+.export-item span {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* Animation for dropdown */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.export-menu.show {
+    animation: slideDown 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .btn-export {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn-export span {
+        display: none;
+    }
+    
+    .btn-export i:first-child {
+        font-size: 1.2rem;
+    }
+    
+    .export-menu {
+        min-width: 200px;
+        right: auto;
+        left: 0;
+    }
+    
+    .export-item {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-buttons {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .export-dropdown {
+        width: 100%;
+    }
+    
+    .btn-export {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-export span {
+        display: inline;
+    }
+    
+    .export-menu {
+        left: 0;
+        right: 0;
+        width: 100%;
+    }
+}

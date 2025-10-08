@@ -35,6 +35,9 @@ Route::post('/logout', function () {
 // ToDoList Routes
 // =======================
 Route::middleware('auth')->group(function () {
+    // =======================
+    // Task Routes
+    // =======================
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
     Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
@@ -43,26 +46,34 @@ Route::middleware('auth')->group(function () {
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
     // =======================
-    // Notification Routes
+    // Import Routes
+    // =======================
+    Route::get('/tasks/import', [TaskController::class, 'showImportForm'])->name('tasks.import.form');
+    Route::post('/tasks/import', [TaskController::class, 'import'])->name('tasks.import');
+    Route::get('/tasks/import/template', [TaskController::class, 'downloadTemplate'])->name('tasks.import.template');
+
+    // =======================
+    // Export Routes
+    // =======================
+    Route::get('/tasks/export/excel', [TaskController::class, 'exportToExcel'])->name('tasks.export.excel');
+    Route::get('/tasks/export/google-sheets', [TaskController::class, 'exportToGoogleSheets'])->name('tasks.export.google-sheets');
+
+    // =======================
+    // Notification Routes - FIXED
     // =======================
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    
+    // Hanya satu route untuk unread count
     Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+    
+    // Hanya satu route untuk mark as read
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::delete('/notifications/delete-all-read', [NotificationController::class, 'deleteAllRead'])->name('notifications.delete-all-read');
     Route::delete('/notifications/deleteAll', [NotificationController::class, 'deleteAll'])->name('notifications.deleteAll');
 
-    // API untuk dropdown notification
-    Route::get('/notifications/api', [NotificationController::class, 'api'])->name('notifications.api');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-
-    Route::get('/tasks/export/excel', [TaskController::class, 'exportToExcel'])
-        ->name('tasks.export.excel');
-    
-    // Export ke Google Sheets (TSV)
-    Route::get('/tasks/export/google-sheets', [TaskController::class, 'exportToGoogleSheets'])
-        ->name('tasks.export.google-sheets');
+    // API untuk dropdown notification - gunakan prefix yang berbeda
+    Route::get('/notifications/api/list', [NotificationController::class, 'api'])->name('notifications.api');
 });
-

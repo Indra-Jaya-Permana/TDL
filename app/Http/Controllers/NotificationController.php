@@ -44,7 +44,7 @@ class NotificationController extends Controller
                     'type' => $notif->type,
                     'is_read' => $notif->is_read,
                     'time_ago' => $notif->created_at->diffForHumans(),
-                    'url' => $notif->task_id ? route('tasks.show', $notif->task_id) : null,
+                    'url' => $notif->task_id ? route('tasks.edit', $notif->task_id) : '#',
                 ];
             });
 
@@ -107,7 +107,7 @@ class NotificationController extends Controller
 
     /**
      * ===============================
-     * BAGIAN LOGIKA NOTIFIKASI
+     * BAGIAN LOGIKA NOTIFIKASI - FIXED
      * ===============================
      */
     public function generateNotifications()
@@ -121,72 +121,105 @@ class NotificationController extends Controller
             ->get();
     
         foreach ($tasks as $task) {
-            $dueDate = Carbon::parse($task->due_date);
-            $daysDiff = $now->copy()->startOfDay()->diffInDays($dueDate->copy()->startOfDay(), false);
+            // Pastikan due_date tidak null dan valid
+            if (!$task->due_date) {
+                continue;
+            }
+
+            try {
+                $dueDate = Carbon::parse($task->due_date);
+                $daysDiff = $now->copy()->startOfDay()->diffInDays($dueDate->copy()->startOfDay(), false);
+            } catch (\Exception $e) {
+                // Skip task jika parsing tanggal gagal
+                continue;
+            }
     
             $user = $task->user;
-
-            // ✅ Tambahkan ini di awal supaya $description selalu ada
             $description = $task->description ?? 'Belum ada deskripsi untuk tugas ini.';
     
-         // ================================
-        // 🔔 Notifikasi H-5 s.d H-1
-        // ================================
-        if ($daysDiff >= 1 && $daysDiff <= 5) {
-            $type = "deadline_h{$daysDiff}";
-            $title = "⏰ Deadline H-{$daysDiff}";
+            // ================================
+            // 🔔 Notifikasi H-5 s.d H-1
+            // ================================
+            if ($daysDiff >= 1 && $daysDiff <= 5) {
+                $type = "deadline_h{$daysDiff}";
+                $title = "⏰ Deadline H-{$daysDiff}";
 
-            // ✅ Format pesan lebih deskriptif
-            $message = "📘 <strong>Tugas:</strong> {$task->title}
-            📝 <strong>Deskripsi:</strong> {$description}<br>
-            🗓️ <strong>Dibuat:</strong> " . $task->created_at->format('d M Y, H:i') . "
-            ⏰ <strong>Deadline:</strong> " . $dueDate->format('d M Y, H:i') . "
-            ⚡ Jangan lupa segera kerjakan tugas ini agar tidak terlambat!
-            ";
+                // Format pesan lebih deskriptif
+                $message = "📘 <strong>Tugas:</strong> {$task->title}\n" .
+                          "📝 <strong>Deskripsi:</strong> {$description}\n" .
+                          "🗓️ <strong>Dibuat:</strong> " . $task->created_at->format('d M Y') . "\n" .
+                          "⏰ <strong>Deadline:</strong> " . $dueDate->format('d M Y') . "\n" .
+                          "⚡ Jangan lupa segera kerjakan tugas ini agar tidak terlambat!";
 
-            $notif = $this->createNotificationIfNotExists($task, $type, $title, strip_tags($message));
+                $this->createNotificationIfNotExists($task, $type, $title, strip_tags($message));
 
-            if ($notif && $user && $user->email) {
-                \Mail::to($user->email)->send(new \App\Mail\DeadlineNotification(
-                    $user->name,
-                    $task->title,
-                    route('tasks.show', $task->id),
-                    $dueDate->format('d M Y, H:i'),
-                    $daysDiff
-                ));
+                // Kirim email jika ada user dan email
+                if ($user && $user->email) {
+                    try {
+                        \Mail::to($user->email)->send(new \App\Mail\DeadlineNotification(
+                            $user->name,
+                            $task->title,
+                            route('tasks.edit', $task->id),
+                            $dueDate->format('d M Y'),
+                            $daysDiff
+                        ));
+                    } catch (\Exception $e) {
+                        // Log error email tapi jangan stop proses
+                        \Log::error('Gagal kirim email notifikasi: ' . $e->getMessage());
+                    }
+                }
             }
-        }
 
-        // ================================
-        // 🚨 Deadline Hari Ini
-        // ================================
-        if ($now->isSameDay($dueDate)) {
-            $type = 'deadline_today';
-            $title = '🚨 Deadline Hari Ini!';
+            // ================================
+            // 🚨 Deadline Hari Ini
+            // ================================
+            if ($daysDiff === 0) {
+                $type = 'deadline_today';
+                $title = '🚨 Deadline Hari Ini!';
 
-            $message = "📘 <strong>Tugas:</strong> {$task->title}
-            📝 <strong>Deskripsi:</strong> {$description}<br>
-            🗓️ <strong>Dibuat:</strong> " . $task->created_at->format('d M Y, H:i') . "
-            ⏰ <strong>Deadline:</strong> " . $dueDate->format('d M Y, H:i') . "
-            ⚡ Jangan lupa segera kerjakan tugas ini agar tidak terlambat!
-            ";
+                $message = "📘 <strong>Tugas:</strong> {$task->title}\n" .
+                          "📝 <strong>Deskripsi:</strong> {$description}\n" .
+                          "🗓️ <strong>Dibuat:</strong> " . $task->created_at->format('d M Y') . "\n" .
+                          "⏰ <strong>Deadline:</strong> " . $dueDate->format('d M Y') . "\n" .
+                          "⚡ Tugas ini harus diselesaikan hari ini!";
 
-            $notif = $this->createNotificationIfNotExists($task, $type, $title, strip_tags($message));
+                $this->createNotificationIfNotExists($task, $type, $title, strip_tags($message));
 
-            if ($notif && $user && $user->email) {
-                \Mail::to($user->email)->send(new \App\Mail\DeadlineNotification(
-                    $user->name,
-                    $task->title,
-                    route('tasks.show', $task->id),
-                    $dueDate->format('d M Y, H:i'),
-                    0
-                ));
+                // Kirim email untuk deadline hari ini
+                if ($user && $user->email) {
+                    try {
+                        \Mail::to($user->email)->send(new \App\Mail\DeadlineNotification(
+                            $user->name,
+                            $task->title,
+                            route('tasks.edit', $task->id),
+                            $dueDate->format('d M Y'),
+                            0
+                        ));
+                    } catch (\Exception $e) {
+                        \Log::error('Gagal kirim email notifikasi deadline hari ini: ' . $e->getMessage());
+                    }
+                }
+            }
+
+            // ================================
+            // ⚠️ Tugas Terlambat
+            // ================================
+            if ($daysDiff < 0) {
+                $type = 'task_overdue';
+                $title = '⚠️ Tugas Terlambat!';
+                $lateDays = abs($daysDiff);
+
+                $message = "📘 <strong>Tugas:</strong> {$task->title}\n" .
+                          "📝 <strong>Deskripsi:</strong> {$description}\n" .
+                          "🗓️ <strong>Dibuat:</strong> " . $task->created_at->format('d M Y') . "\n" .
+                          "⏰ <strong>Deadline:</strong> " . $dueDate->format('d M Y') . "\n" .
+                          "🔴 <strong>Status:</strong> Terlambat {$lateDays} hari\n" .
+                          "⚡ Segera selesaikan tugas ini!";
+
+                $this->createNotificationIfNotExists($task, $type, $title, strip_tags($message));
             }
         }
     }
-}
-    
-    
     
     /**
      * Membuat notifikasi hanya jika belum ada di hari ini dan tipe sama.
@@ -202,7 +235,7 @@ class NotificationController extends Controller
             ->exists();
     
         if (!$exists) {
-            Notification::create([
+            return Notification::create([
                 'user_id' => $task->user_id,
                 'task_id' => $task->id,
                 'type' => $type,
@@ -211,35 +244,48 @@ class NotificationController extends Controller
                 'created_at' => now(),
             ]);
         }
+        
+        return null;
     }
-    
-    
 
+    /**
+     * Notifikasi untuk tugas baru
+     */
     public static function createNewTaskNotification(Task $task)
     {
-        $dueInfo = $task->due_date;
         $description = $task->description ?? 'Belum ada deskripsi untuk tugas ini.';
+        
+        // Format deadline info
+        $deadlineInfo = 'Tidak ada deadline';
+        if ($task->due_date) {
+            try {
+                $deadlineInfo = Carbon::parse($task->due_date)->format('d M Y');
+            } catch (\Exception $e) {
+                $deadlineInfo = 'Deadline tidak valid';
+            }
+        }
     
-        $message = "📘 <strong>Tugas:</strong> {$task->title}
-        📝 <strong>Deskripsi:</strong> {$description}<br>
-        🗓️ <strong>Dibuat:</strong> " . $task->created_at->format('d M Y, H:i') . "
-        ⏰ <strong>Deadline:</strong> " . $dueInfo->format('d M Y, H:i') . "
-        ⚡ Jangan lupa segera kerjakan tugas ini agar tidak terlambat!
-        ";
+        $message = "📘 <strong>Tugas:</strong> {$task->title}\n" .
+                  "📝 <strong>Deskripsi:</strong> {$description}\n" .
+                  "🗓️ <strong>Dibuat:</strong> " . $task->created_at->format('d M Y') . "\n" .
+                  "⏰ <strong>Deadline:</strong> {$deadlineInfo}\n" .
+                  "✅ Tugas baru berhasil ditambahkan!";
     
         Notification::create([
             'user_id' => $task->user_id,
             'task_id' => $task->id,
             'type' => 'new_task',
             'title' => '✨ Tugas Baru Ditambahkan',
-            'message' => strip_tags($message), // ✅ tambahkan ini
+            'message' => strip_tags($message),
         ]);
     }
-    
 
+    /**
+     * Notifikasi untuk tugas selesai
+     */
     public static function createTaskCompletedNotification(Task $task)
     {
-        \App\Models\Notification::create([
+        Notification::create([
             'user_id' => $task->user_id,
             'task_id' => $task->id,
             'type' => 'task_completed',
@@ -247,5 +293,18 @@ class NotificationController extends Controller
             'message' => "Selamat! Tugas '{$task->title}' telah diselesaikan",
         ]);
     }
-    
+
+    /**
+     * Notifikasi untuk tugas dihapus
+     */
+    public static function createTaskDeletedNotification(Task $task)
+    {
+        Notification::create([
+            'user_id' => $task->user_id,
+            'task_id' => $task->id,
+            'type' => 'task_deleted',
+            'title' => '🗑️ Tugas Dihapus',
+            'message' => "Tugas '{$task->title}' telah dihapus dari daftar",
+        ]);
+    }
 }
