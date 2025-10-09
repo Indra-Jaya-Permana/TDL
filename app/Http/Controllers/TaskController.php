@@ -151,181 +151,181 @@ class TaskController extends Controller
     }
 
     /**
- * Export tasks to Excel (CSV format) - DENGAN JAM
- */
-public function exportToExcel()
-{
-    $tasks = Task::where('user_id', Auth::id())
-                ->orderBy('created_at', 'desc')
-                ->get();
+     * Export tasks to Excel (CSV format) - DENGAN JAM
+     */
+    public function exportToExcel()
+    {
+        $tasks = Task::where('user_id', Auth::id())
+                    ->orderBy('created_at', 'desc')
+                    ->get();
 
-    $filename = 'daftar-tugas-' . date('Y-m-d-His') . '.csv';
-    
-    $headers = [
-        'Content-Type' => 'text/csv; charset=UTF-8',
-        'Content-Disposition' => "attachment; filename=\"$filename\"",
-        'Pragma' => 'no-cache',
-        'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-        'Expires' => '0'
-    ];
-
-    $callback = function() use ($tasks) {
-        $file = fopen('php://output', 'w');
+        $filename = 'daftar-tugas-' . date('Y-m-d-His') . '.csv';
         
-        // Add BOM untuk UTF-8 support di Excel
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-        
-        // Header kolom
-        fputcsv($file, [
-            'No',
-            'Judul Tugas',
-            'Deskripsi',
-            'Status',
-            'Deadline',
-            'Waktu Deadline',
-            'Dibuat Pada',
-            'Diupdate Pada',
-            'Keterangan Deadline'
-        ]);
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
 
-        // Data rows
-        $no = 1;
-        foreach ($tasks as $task) {
-            $status = $task->status == 'done' ? 'Selesai' : 'Pending';
-            $deadline = $task->due_date ? $task->due_date->format('d/m/Y') : 'Tidak ada deadline';
-            $deadlineTime = $task->due_date ? $task->due_date->format('H:i') : '-';
-            $created = $task->created_at->format('d/m/Y H:i');
-            $updated = $task->updated_at->format('d/m/Y H:i');
+        $callback = function() use ($tasks) {
+            $file = fopen('php://output', 'w');
             
-            // Keterangan deadline
-            $deadlineNote = 'Tidak ada deadline';
-            if ($task->due_date) {
-                $now = now();
-                $diffInDays = $now->diffInDays($task->due_date, false);
-                
-                if ($task->status == 'done') {
-                    $deadlineNote = 'Selesai';
-                } elseif ($diffInDays < 0) {
-                    $deadlineNote = 'Terlambat ' . abs($diffInDays) . ' hari';
-                } elseif ($diffInDays <= 1) {
-                    $hoursLeft = $now->diffInHours($task->due_date, false);
-                    if ($hoursLeft <= 0) {
-                        $deadlineNote = 'Terlambat ' . abs($hoursLeft) . ' jam';
-                    } else {
-                        $deadlineNote = 'Deadline Dekat (Kurang dari 24 jam)';
-                    }
-                } else {
-                    $deadlineNote = $diffInDays . ' hari menuju deadline';
-                }
-            }
+            // Add BOM untuk UTF-8 support di Excel
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
             
+            // Header kolom
             fputcsv($file, [
-                $no++,
-                $task->title,
-                $task->description ?? 'Tidak ada deskripsi',
-                $status,
-                $deadline,
-                $deadlineTime,
-                $created,
-                $updated,
-                $deadlineNote
+                'No',
+                'Judul Tugas',
+                'Deskripsi',
+                'Status',
+                'Deadline',
+                'Waktu Deadline',
+                'Dibuat Pada',
+                'Diupdate Pada',
+                'Keterangan Deadline'
             ]);
-        }
 
-        fclose($file);
-    };
+            // Data rows
+            $no = 1;
+            foreach ($tasks as $task) {
+                $status = $task->status == 'done' ? 'Selesai' : 'Pending';
+                $deadline = $task->due_date ? $task->due_date->format('d/m/Y') : 'Tidak ada deadline';
+                $deadlineTime = $task->due_date ? $task->due_date->format('H:i') : '-';
+                $created = $task->created_at->format('d/m/Y H:i');
+                $updated = $task->updated_at->format('d/m/Y H:i');
+                
+                // Keterangan deadline
+                $deadlineNote = 'Tidak ada deadline';
+                if ($task->due_date) {
+                    $now = now();
+                    $diffInDays = $now->diffInDays($task->due_date, false);
+                    
+                    if ($task->status == 'done') {
+                        $deadlineNote = 'Selesai';
+                    } elseif ($diffInDays < 0) {
+                        $deadlineNote = 'Terlambat ' . abs($diffInDays) . ' hari';
+                    } elseif ($diffInDays <= 1) {
+                        $hoursLeft = $now->diffInHours($task->due_date, false);
+                        if ($hoursLeft <= 0) {
+                            $deadlineNote = 'Terlambat ' . abs($hoursLeft) . ' jam';
+                        } else {
+                            $deadlineNote = 'Deadline Dekat (Kurang dari 24 jam)';
+                        }
+                    } else {
+                        $deadlineNote = $diffInDays . ' hari menuju deadline';
+                    }
+                }
+                
+                fputcsv($file, [
+                    $no++,
+                    $task->title,
+                    $task->description ?? 'Tidak ada deskripsi',
+                    $status,
+                    $deadline,
+                    $deadlineTime,
+                    $created,
+                    $updated,
+                    $deadlineNote
+                ]);
+            }
 
-    return Response::stream($callback, 200, $headers);
-}
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
 
     /**
- * Export tasks to Google Sheets (TSV format) - DENGAN JAM
- */
-public function exportToGoogleSheets()
-{
-    $tasks = Task::where('user_id', Auth::id())
-                ->orderBy('created_at', 'desc')
-                ->get();
+     * Export tasks to Google Sheets (TSV format) - DENGAN JAM
+     */
+    public function exportToGoogleSheets()
+    {
+        $tasks = Task::where('user_id', Auth::id())
+                    ->orderBy('created_at', 'desc')
+                    ->get();
 
-    // Generate TSV (Tab-Separated Values) untuk Google Sheets
-    $filename = 'daftar-tugas-' . date('Y-m-d-His') . '.tsv';
-    
-    $headers = [
-        'Content-Type' => 'text/tab-separated-values; charset=UTF-8',
-        'Content-Disposition' => "attachment; filename=\"$filename\"",
-        'Pragma' => 'no-cache',
-        'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-        'Expires' => '0'
-    ];
-
-    $callback = function() use ($tasks) {
-        $file = fopen('php://output', 'w');
+        // Generate TSV (Tab-Separated Values) untuk Google Sheets
+        $filename = 'daftar-tugas-' . date('Y-m-d-His') . '.tsv';
         
-        // Add BOM untuk UTF-8 support
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-        
-        // Header kolom (Tab-separated)
-        fwrite($file, implode("\t", [
-            'No',
-            'Judul Tugas',
-            'Deskripsi',
-            'Status',
-            'Deadline',
-            'Waktu Deadline',
-            'Dibuat Pada',
-            'Diupdate Pada',
-            'Keterangan Deadline'
-        ]) . "\n");
+        $headers = [
+            'Content-Type' => 'text/tab-separated-values; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
 
-        // Data rows
-        $no = 1;
-        foreach ($tasks as $task) {
-            $status = $task->status == 'done' ? 'Selesai' : 'Pending';
-            $deadline = $task->due_date ? $task->due_date->format('d/m/Y') : 'Tidak ada deadline';
-            $deadlineTime = $task->due_date ? $task->due_date->format('H:i') : '-';
-            $created = $task->created_at->format('d/m/Y H:i');
-            $updated = $task->updated_at->format('d/m/Y H:i');
+        $callback = function() use ($tasks) {
+            $file = fopen('php://output', 'w');
             
-            // Keterangan deadline
-            $deadlineNote = 'Tidak ada deadline';
-            if ($task->due_date) {
-                $now = now();
-                $diffInDays = $now->diffInDays($task->due_date, false);
-                
-                if ($task->status == 'done') {
-                    $deadlineNote = 'Selesai';
-                } elseif ($diffInDays < 0) {
-                    $deadlineNote = 'Terlambat ' . abs($diffInDays) . ' hari';
-                } elseif ($diffInDays <= 1) {
-                    $hoursLeft = $now->diffInHours($task->due_date, false);
-                    if ($hoursLeft <= 0) {
-                        $deadlineNote = 'Terlambat ' . abs($hoursLeft) . ' jam';
-                    } else {
-                        $deadlineNote = 'Deadline Dekat (Kurang dari 24 jam)';
-                    }
-                } else {
-                    $deadlineNote = $diffInDays . ' hari menuju deadline';
-                }
-            }
+            // Add BOM untuk UTF-8 support
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
             
+            // Header kolom (Tab-separated)
             fwrite($file, implode("\t", [
-                $no++,
-                str_replace(["\t", "\n", "\r"], ' ', $task->title),
-                str_replace(["\t", "\n", "\r"], ' ', $task->description ?? 'Tidak ada deskripsi'),
-                $status,
-                $deadline,
-                $deadlineTime,
-                $created,
-                $updated,
-                $deadlineNote
+                'No',
+                'Judul Tugas',
+                'Deskripsi',
+                'Status',
+                'Deadline',
+                'Waktu Deadline',
+                'Dibuat Pada',
+                'Diupdate Pada',
+                'Keterangan Deadline'
             ]) . "\n");
-        }
 
-        fclose($file);
-    };
+            // Data rows
+            $no = 1;
+            foreach ($tasks as $task) {
+                $status = $task->status == 'done' ? 'Selesai' : 'Pending';
+                $deadline = $task->due_date ? $task->due_date->format('d/m/Y') : 'Tidak ada deadline';
+                $deadlineTime = $task->due_date ? $task->due_date->format('H:i') : '-';
+                $created = $task->created_at->format('d/m/Y H:i');
+                $updated = $task->updated_at->format('d/m/Y H:i');
+                
+                // Keterangan deadline
+                $deadlineNote = 'Tidak ada deadline';
+                if ($task->due_date) {
+                    $now = now();
+                    $diffInDays = $now->diffInDays($task->due_date, false);
+                    
+                    if ($task->status == 'done') {
+                        $deadlineNote = 'Selesai';
+                    } elseif ($diffInDays < 0) {
+                        $deadlineNote = 'Terlambat ' . abs($diffInDays) . ' hari';
+                    } elseif ($diffInDays <= 1) {
+                        $hoursLeft = $now->diffInHours($task->due_date, false);
+                        if ($hoursLeft <= 0) {
+                            $deadlineNote = 'Terlambat ' . abs($hoursLeft) . ' jam';
+                        } else {
+                            $deadlineNote = 'Deadline Dekat (Kurang dari 24 jam)';
+                        }
+                    } else {
+                        $deadlineNote = $diffInDays . ' hari menuju deadline';
+                    }
+                }
+                
+                fwrite($file, implode("\t", [
+                    $no++,
+                    str_replace(["\t", "\n", "\r"], ' ', $task->title),
+                    str_replace(["\t", "\n", "\r"], ' ', $task->description ?? 'Tidak ada deskripsi'),
+                    $status,
+                    $deadline,
+                    $deadlineTime,
+                    $created,
+                    $updated,
+                    $deadlineNote
+                ]) . "\n");
+            }
 
-    return Response::stream($callback, 200, $headers);
-}
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
 
     /**
      * Show import form
@@ -336,79 +336,83 @@ public function exportToGoogleSheets()
     }
 
     /**
-     * Process import from file or URL
+     * Process import from file or URL - SUPPORT KEDUANYA SEKALIGUS
      */
     public function import(Request $request)
     {
-            $urlString = $request->input('import_url');
-
-        // 🔽 Masukkan baris ini di sini
-        $this->processImportFromUrl($urlString);
-
-        return redirect()->back()->with('success', 'Data berhasil diimport dari URL.');
-        // Validasi manual tanpa ImportTaskRequest
+        // Validasi: keduanya opsional tapi minimal salah satu harus ada
         $validator = Validator::make($request->all(), [
-            'import_file' => 'required_without:import_url|file|mimes:csv,txt,xlsx,xls|max:10240',
-            'import_url' => 'required_without:import_file|url',
+            'import_file' => 'nullable|file|mimes:csv,txt,xlsx,xls|max:10240',
+            'import_url' => 'nullable|url',
         ], [
-            'import_file.required_without' => 'File import harus diisi jika tidak menggunakan URL',
             'import_file.mimes' => 'Format file harus CSV, Excel, atau TXT',
             'import_file.max' => 'File tidak boleh lebih dari 10MB',
-            'import_url.required_without' => 'URL harus diisi jika tidak menggunakan file upload',
             'import_url.url' => 'URL harus valid',
-            
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
+        // Pastikan minimal salah satu diisi
+        if (!$request->hasFile('import_file') && !$request->filled('import_url')) {
+            return back()->with('error', 'Silakan upload file atau masukkan URL untuk import.');
+        }
+
         try {
-            $importedCount = 0;
-            $errors = [];
+            $totalImported = 0;
+            $allErrors = [];
 
-            \Log::info("Starting import process");
+            \Log::info("=== MULAI PROSES IMPORT ===");
 
+            // ✅ Import dari FILE (jika ada)
             if ($request->hasFile('import_file')) {
-                \Log::info("Importing from file: " . $request->file('import_file')->getClientOriginalName());
-                $result = $this->importFromFile($request->file('import_file'));
-                $importedCount = $result['imported'];
-                $errors = $result['errors'];
-            } elseif ($request->import_url) {
-                \Log::info("Importing from URL: " . $request->import_url);
-                $result = $this->importFromUrl($request->import_url);
-                $importedCount = $result['imported'];
-                $errors = $result['errors'];
+                $file = $request->file('import_file');
+                \Log::info("Importing from FILE: " . $file->getClientOriginalName());
+
+                $result = $this->importFromFile($file);
+                $totalImported += $result['imported'];
+                $allErrors = array_merge($allErrors, $result['errors']);
+                
+                \Log::info("File import: {$result['imported']} tasks imported");
             }
 
-            \Log::info("Import completed: {$importedCount} imported, " . count($errors) . " errors");
+            // ✅ Import dari URL (jika ada)
+            if ($request->filled('import_url')) {
+                $urlString = $request->input('import_url');
+                \Log::info("Importing from URL: " . $urlString);
 
-            if ($importedCount > 0) {
-                $message = "Berhasil mengimport {$importedCount} tugas!";
-                if (!empty($errors)) {
-                    $message .= " Terdapat " . count($errors) . " error.";
-                    \Log::warning("Import errors: ", $errors);
+                $result = $this->processImportFromUrl($urlString);
+                $totalImported += $result['imported'];
+                $allErrors = array_merge($allErrors, $result['errors']);
+                
+                \Log::info("URL import: {$result['imported']} tasks imported");
+            }
+
+            \Log::info("Import completed: {$totalImported} total imported, " . count($allErrors) . " total errors");
+
+            // Response berdasarkan hasil
+            if ($totalImported > 0) {
+                $message = "Berhasil mengimport {$totalImported} tugas!";
+                
+                if (!empty($allErrors)) {
+                    $message .= " Terdapat " . count($allErrors) . " error.";
+                    \Log::warning("Import errors: ", $allErrors);
                 }
+                
                 return redirect()->route('tasks.index')->with('success', $message);
             } else {
-                \Log::warning("No data imported");
-                return back()->with('error', 'Tidak ada data yang berhasil diimport. Periksa format file Anda.');
+                $errorMessage = 'Tidak ada data yang berhasil diimport.';
+                if (!empty($allErrors)) {
+                    $errorMessage .= ' Error: ' . implode(', ', array_slice($allErrors, 0, 3));
+                }
+                return back()->with('error', $errorMessage);
             }
 
         } catch (\Exception $e) {
             \Log::error("Import process failed: " . $e->getMessage());
             return back()->with('error', 'Terjadi error: ' . $e->getMessage());
         }
-            if ($request->hasFile('import_file')) {
-            $file = $request->file('import_file');
-            $filePath = $file->getRealPath();
-            $this->processCSV($filePath);
-        } elseif ($request->filled('import_url')) {
-            $urlString = $request->input('import_url');
-            $this->processImportFromUrl($urlString);
-    }
-
-    return redirect()->back()->with('success', 'Data berhasil diimport.');
     }
 
     /**
@@ -430,109 +434,89 @@ public function exportToGoogleSheets()
     }
 
     /**
- * Import from URL (Google Sheets, etc) - COMPREHENSIVE VERSION
- */
-/**
- * Import from URL (Google Sheets, etc) - SIMPLE WORKING VERSION
- */
-private function processImportFromUrl(string $url)
-{
-    // Jika URL Google Sheets biasa, ubah ke export CSV
-    if (preg_match('/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)\/.*$/', $url, $matches)) {
-    $sheetId = $matches[1];
-    $url = "https://docs.google.com/spreadsheets/d/{$sheetId}/export?format=csv";
-    }
-
-    $response = Http::timeout(30)->get($url);
-
-    if (!$response->successful()) {
-        throw new \Exception('Gagal mengakses URL. Status: ' . $response->status());
-    }
-
-    $content = $response->body();
-    // Kalau masih mengandung HTML, itu berarti bukan file mentah
-    if (stripos($content, '<html') !== false || stripos($content, '<!DOCTYPE') !== false) {
-    throw new \Exception('URL tidak valid. Harus URL file CSV/TSV mentah.');
-    }
-
-    // Deteksi separator
-    $separator = ',';
-    if (strpos($content, "\t") !== false) {
-        $separator = "\t";
-    } elseif (strpos($content, ';') !== false) {
-        $separator = ';';
-    }
-
-    $this->processCSVContentWithSeparator($content, $separator);
-}
-
-
-public function importFromUrl(Request $request)
-{
-    $request->validate([
-        'url' => 'required|url',
-    ]);
-
-    try {
-        $url = $request->input('url');
-        $this->processImportFromUrl($url);
-
-        return back()->with('success', 'Import tugas dari URL berhasil.');
-    } catch (\Exception $e) {
-        \Log::error('Import from URL error: ' . $e->getMessage());
-        return back()->with('error', 'Terjadi kesalahan saat import: ' . $e->getMessage());
-    }
-}
-
-/**
- * Process CSV content dengan separator custom
- */
-private function processCSVContentWithSeparator($content, $separator = ',')
-{
-    $imported = 0;
-    $errors = [];
-    $rowNumber = 0;
-
-    $lines = explode("\n", trim($content));
-    
-    // Skip header jika ada
-    if (count($lines) > 0) {
-        $firstLine = $lines[0];
-        // Cek jika baris pertama adalah header (mengandung JudulTugas atau kolom lain)
-        if (strpos($firstLine, 'JudulTugas') !== false || strpos($firstLine, 'Judul') !== false) {
-            array_shift($lines);
-            \Log::info("Skipped header row");
+     * Import from URL (Google Sheets, etc) - COMPREHENSIVE VERSION
+     */
+    private function processImportFromUrl(string $url)
+    {
+        // Jika URL Google Sheets biasa, ubah ke export CSV
+        if (preg_match('/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)\/.*$/', $url, $matches)) {
+            $sheetId = $matches[1];
+            $url = "https://docs.google.com/spreadsheets/d/{$sheetId}/export?format=csv";
         }
-    }
-    
-    foreach ($lines as $line) {
-        $rowNumber++;
+
+        $response = Http::timeout(30)->get($url);
+
+        if (!$response->successful()) {
+            throw new \Exception('Gagal mengakses URL. Status: ' . $response->status());
+        }
+
+        $content = $response->body();
         
-        // Skip baris kosong
-        if (empty(trim($line))) {
-            continue;
+        // Kalau masih mengandung HTML, itu berarti bukan file mentah
+        if (stripos($content, '<html') !== false || stripos($content, '<!DOCTYPE') !== false) {
+            throw new \Exception('URL tidak valid. Harus URL file CSV/TSV mentah.');
+        }
+
+        // Deteksi separator
+        $separator = ',';
+        if (strpos($content, "\t") !== false) {
+            $separator = "\t";
+        } elseif (strpos($content, ';') !== false) {
+            $separator = ';';
+        }
+
+        return $this->processCSVContentWithSeparator($content, $separator);
+    }
+
+    /**
+     * Process CSV content dengan separator custom
+     */
+    private function processCSVContentWithSeparator($content, $separator = ',')
+    {
+        $imported = 0;
+        $errors = [];
+        $rowNumber = 0;
+
+        $lines = explode("\n", trim($content));
+        
+        // Skip header jika ada
+        if (count($lines) > 0) {
+            $firstLine = $lines[0];
+            // Cek jika baris pertama adalah header (mengandung JudulTugas atau kolom lain)
+            if (strpos($firstLine, 'JudulTugas') !== false || strpos($firstLine, 'Judul') !== false) {
+                array_shift($lines);
+                \Log::info("Skipped header row");
+            }
         }
         
-        // Handle separator
-        if ($separator === ';') {
-            $data = str_getcsv($line, ';');
-        } else {
-            $data = str_getcsv($line);
+        foreach ($lines as $line) {
+            $rowNumber++;
+            
+            // Skip baris kosong
+            if (empty(trim($line))) {
+                continue;
+            }
+            
+            // Handle separator
+            if ($separator === ';') {
+                $data = str_getcsv($line, ';');
+            } else {
+                $data = str_getcsv($line);
+            }
+            
+            \Log::info("URL Import - Row {$rowNumber}: ", $data);
+            
+            $result = $this->createTaskFromRow($data, $rowNumber, 'url');
+            if ($result['success']) {
+                $imported++;
+            } else {
+                $errors[] = $result['error'];
+            }
         }
-        
-        \Log::info("URL Import - Row {$rowNumber}: ", $data);
-        
-        $result = $this->createTaskFromRow($data, $rowNumber);
-        if ($result['success']) {
-            $imported++;
-        } else {
-            $errors[] = $result['error'];
-        }
-    }
 
-    \Log::info("URL import result: {$imported} imported, " . count($errors) . " errors");
-    return ['imported' => $imported, 'errors' => $errors];
-}
+        \Log::info("URL import result: {$imported} imported, " . count($errors) . " errors");
+        return ['imported' => $imported, 'errors' => $errors];
+    }
 
     /**
      * Process CSV file dengan handle separator titik koma
@@ -559,7 +543,7 @@ private function processCSVContentWithSeparator($content, $separator = ',')
                 $rowNumber++;
                 \Log::info("Row {$rowNumber} data: ", $data);
                 
-                $result = $this->createTaskFromRow($data, $rowNumber);
+                $result = $this->createTaskFromRow($data, $rowNumber, 'file');
                 if ($result['success']) {
                     $imported++;
                 } else {
@@ -567,62 +551,6 @@ private function processCSVContentWithSeparator($content, $separator = ',')
                 }
             }
             fclose($handle);
-        }
-
-        return ['imported' => $imported, 'errors' => $errors];
-    }
-
-    /**
-     * Process CSV content directly
-     */
-    private function processCSVContent($content)
-    {
-        $imported = 0;
-        $errors = [];
-        $rowNumber = 0;
-
-        $lines = explode("\n", trim($content));
-        
-        // Skip header
-        array_shift($lines);
-        
-        foreach ($lines as $line) {
-            $rowNumber++;
-            $data = str_getcsv($line);
-            $result = $this->createTaskFromRow($data, $rowNumber);
-            if ($result['success']) {
-                $imported++;
-            } else {
-                $errors[] = $result['error'];
-            }
-        }
-
-        return ['imported' => $imported, 'errors' => $errors];
-    }
-
-    /**
-     * Process TSV content
-     */
-    private function processTSVContent($content)
-    {
-        $imported = 0;
-        $errors = [];
-        $rowNumber = 0;
-
-        $lines = explode("\n", trim($content));
-        
-        // Skip header
-        array_shift($lines);
-        
-        foreach ($lines as $line) {
-            $rowNumber++;
-            $data = explode("\t", $line);
-            $result = $this->createTaskFromRow($data, $rowNumber);
-            if ($result['success']) {
-                $imported++;
-            } else {
-                $errors[] = $result['error'];
-            }
         }
 
         return ['imported' => $imported, 'errors' => $errors];
@@ -655,7 +583,7 @@ private function processCSVContentWithSeparator($content, $separator = ',')
             $rowNumber = 0;
             foreach ($rows as $row) {
                 $rowNumber++;
-                $result = $this->createTaskFromRow($row, $rowNumber);
+                $result = $this->createTaskFromRow($row, $rowNumber, 'excel');
                 if ($result['success']) {
                     $imported++;
                 } else {
@@ -673,195 +601,194 @@ private function processCSVContentWithSeparator($content, $separator = ',')
     /**
      * Create task from data row - FIXED VERSION untuk format Indonesia
      */
+    private function createTaskFromRow($data, $rowNumber, $source = 'unknown')
+    {
+        try {
+            \Log::info("[{$source}] Raw data row {$rowNumber}: ", $data);
 
-private function createTaskFromRow($data, $rowNumber)
-{
-    try {
-        \Log::info("Raw data row {$rowNumber}: ", $data);
-
-        // Skip jika baris kosong
-        if (count(array_filter($data)) === 0) {
-            return ['success' => false, 'error' => "Baris {$rowNumber}: Baris kosong"];
-        }
-
-        // Mapping kolom tetap berdasarkan template
-        $title = isset($data[0]) ? trim($data[0]) : '';
-        $description = isset($data[1]) ? trim($data[1]) : null;
-        $status = isset($data[2]) ? trim($data[2]) : 'pending';
-        $dueDateStr = isset($data[3]) ? trim($data[3]) : null;
-        $dueTimeStr = isset($data[4]) ? trim($data[4]) : null;
-
-        \Log::info("Parsed basic data - Title: {$title}, DueDate: '{$dueDateStr}', DueTime: '{$dueTimeStr}'");
-
-        // Validasi judul
-        if (empty($title)) {
-            return ['success' => false, 'error' => "Baris {$rowNumber}: Judul tugas tidak boleh kosong"];
-        }
-
-        // Normalize status
-        $status = in_array(strtolower($status), ['done', 'selesai', 'completed']) ? 'done' : 'pending';
-
-        // Parse tanggal - FIXED untuk format Indonesia
-        $dueDate = null;
-        if (!empty($dueDateStr)) {
-            \Log::info("Attempting to parse date: '{$dueDateStr}'");
-            
-            try {
-                // Format DD/MM/YYYY (format Indonesia)
-                if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $dueDateStr, $matches)) {
-                    $day = $matches[1];
-                    $month = $matches[2];
-                    $year = $matches[3];
-                    
-                    if (checkdate($month, $day, $year)) {
-                        $dueDate = Carbon::createFromDate($year, $month, $day);
-                        
-                        // Tambahkan jam jika ada
-                        if (!empty($dueTimeStr) && preg_match('/^(\d{1,2}):(\d{2})$/', $dueTimeStr, $timeMatches)) {
-                            $hour = $timeMatches[1];
-                            $minute = $timeMatches[2];
-                            $dueDate->setTime($hour, $minute);
-                            \Log::info("Successfully parsed as DD/MM/YYYY with time: " . $dueDate->format('Y-m-d H:i:s'));
-                        } else {
-                            \Log::info("Successfully parsed as DD/MM/YYYY: " . $dueDate->format('Y-m-d'));
-                        }
-                    } else {
-                        \Log::warning("Invalid date: {$day}/{$month}/{$year}");
-                    }
-                }
-                // Format YYYY-MM-DD
-                elseif (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $dueDateStr, $matches)) {
-                    $year = $matches[1];
-                    $month = $matches[2];
-                    $day = $matches[3];
-                    
-                    if (checkdate($month, $day, $year)) {
-                        $dueDate = Carbon::createFromDate($year, $month, $day);
-                        
-                        // Tambahkan jam jika ada
-                        if (!empty($dueTimeStr) && preg_match('/^(\d{1,2}):(\d{2})$/', $dueTimeStr, $timeMatches)) {
-                            $hour = $timeMatches[1];
-                            $minute = $timeMatches[2];
-                            $dueDate->setTime($hour, $minute);
-                            \Log::info("Successfully parsed as YYYY-MM-DD with time: " . $dueDate->format('Y-m-d H:i:s'));
-                        } else {
-                            \Log::info("Successfully parsed as YYYY-MM-DD: " . $dueDate->format('Y-m-d'));
-                        }
-                    }
-                }
-                // Coba parsing umum
-                elseif (strtotime($dueDateStr)) {
-                    $dueDate = Carbon::parse($dueDateStr);
-                    
-                    // Tambahkan jam jika ada
-                    if (!empty($dueTimeStr) && preg_match('/^(\d{1,2}):(\d{2})$/', $dueTimeStr, $timeMatches)) {
-                        $hour = $timeMatches[1];
-                        $minute = $timeMatches[2];
-                        $dueDate->setTime($hour, $minute);
-                        \Log::info("Successfully parsed with strtotime + time: " . $dueDate->format('Y-m-d H:i:s'));
-                    } else {
-                        \Log::info("Successfully parsed with strtotime: " . $dueDate->format('Y-m-d'));
-                    }
-                } else {
-                    \Log::warning("Cannot parse date: '{$dueDateStr}'");
-                }
-            } catch (\Exception $e) {
-                \Log::error("Date parsing failed for '{$dueDateStr}': " . $e->getMessage());
+            // Skip jika baris kosong
+            if (count(array_filter($data)) === 0) {
+                return ['success' => false, 'error' => "[{$source}] Baris {$rowNumber}: Baris kosong"];
             }
-        } else {
-            \Log::info("Due date is empty for row {$rowNumber}");
+
+            // Mapping kolom tetap berdasarkan template
+            $title = isset($data[0]) ? trim($data[0]) : '';
+            $description = isset($data[1]) ? trim($data[1]) : null;
+            $status = isset($data[2]) ? trim($data[2]) : 'pending';
+            $dueDateStr = isset($data[3]) ? trim($data[3]) : null;
+            $dueTimeStr = isset($data[4]) ? trim($data[4]) : null;
+
+            \Log::info("[{$source}] Parsed basic data - Title: {$title}, DueDate: '{$dueDateStr}', DueTime: '{$dueTimeStr}'");
+
+            // Validasi judul
+            if (empty($title)) {
+                return ['success' => false, 'error' => "[{$source}] Baris {$rowNumber}: Judul tugas tidak boleh kosong"];
+            }
+
+            // Normalize status
+            $status = in_array(strtolower($status), ['done', 'selesai', 'completed']) ? 'done' : 'pending';
+
+            // Parse tanggal - FIXED untuk format Indonesia
+            $dueDate = null;
+            if (!empty($dueDateStr)) {
+                \Log::info("[{$source}] Attempting to parse date: '{$dueDateStr}'");
+                
+                try {
+                    // Format DD/MM/YYYY (format Indonesia)
+                    if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $dueDateStr, $matches)) {
+                        $day = $matches[1];
+                        $month = $matches[2];
+                        $year = $matches[3];
+                        
+                        if (checkdate($month, $day, $year)) {
+                            $dueDate = Carbon::createFromDate($year, $month, $day);
+                            
+                            // Tambahkan jam jika ada
+                            if (!empty($dueTimeStr) && preg_match('/^(\d{1,2}):(\d{2})$/', $dueTimeStr, $timeMatches)) {
+                                $hour = $timeMatches[1];
+                                $minute = $timeMatches[2];
+                                $dueDate->setTime($hour, $minute);
+                                \Log::info("[{$source}] Successfully parsed as DD/MM/YYYY with time: " . $dueDate->format('Y-m-d H:i:s'));
+                            } else {
+                                \Log::info("[{$source}] Successfully parsed as DD/MM/YYYY: " . $dueDate->format('Y-m-d'));
+                            }
+                        } else {
+                            \Log::warning("[{$source}] Invalid date: {$day}/{$month}/{$year}");
+                        }
+                    }
+                    // Format YYYY-MM-DD
+                    elseif (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $dueDateStr, $matches)) {
+                        $year = $matches[1];
+                        $month = $matches[2];
+                        $day = $matches[3];
+                        
+                        if (checkdate($month, $day, $year)) {
+                            $dueDate = Carbon::createFromDate($year, $month, $day);
+                            
+                            // Tambahkan jam jika ada
+                            if (!empty($dueTimeStr) && preg_match('/^(\d{1,2}):(\d{2})$/', $dueTimeStr, $timeMatches)) {
+                                $hour = $timeMatches[1];
+                                $minute = $timeMatches[2];
+                                $dueDate->setTime($hour, $minute);
+                                \Log::info("[{$source}] Successfully parsed as YYYY-MM-DD with time: " . $dueDate->format('Y-m-d H:i:s'));
+                            } else {
+                                \Log::info("[{$source}] Successfully parsed as YYYY-MM-DD: " . $dueDate->format('Y-m-d'));
+                            }
+                        }
+                    }
+                    // Coba parsing umum
+                    elseif (strtotime($dueDateStr)) {
+                        $dueDate = Carbon::parse($dueDateStr);
+                        
+                        // Tambahkan jam jika ada
+                        if (!empty($dueTimeStr) && preg_match('/^(\d{1,2}):(\d{2})$/', $dueTimeStr, $timeMatches)) {
+                            $hour = $timeMatches[1];
+                            $minute = $timeMatches[2];
+                            $dueDate->setTime($hour, $minute);
+                            \Log::info("[{$source}] Successfully parsed with strtotime + time: " . $dueDate->format('Y-m-d H:i:s'));
+                        } else {
+                            \Log::info("[{$source}] Successfully parsed with strtotime: " . $dueDate->format('Y-m-d'));
+                        }
+                    } else {
+                        \Log::warning("[{$source}] Cannot parse date: '{$dueDateStr}'");
+                    }
+                } catch (\Exception $e) {
+                    \Log::error("[{$source}] Date parsing failed for '{$dueDateStr}': " . $e->getMessage());
+                }
+            } else {
+                \Log::info("[{$source}] Due date is empty for row {$rowNumber}");
+            }
+
+            \Log::info("[{$source}] Final task data for row {$rowNumber}:", [
+                'title' => $title,
+                'description' => $description,
+                'status' => $status,
+                'due_date' => $dueDate ? $dueDate->format('Y-m-d H:i:s') : 'NULL',
+            ]);
+
+            // Create task
+            $taskData = [
+                'user_id' => Auth::id(),
+                'title' => $title,
+                'description' => $description,
+                'status' => $status,
+                'due_date' => $dueDate,
+            ];
+
+            $task = Task::create($taskData);
+
+            // Buat notifikasi
+            NotificationController::createNewTaskNotification($task);
+
+            return ['success' => true];
+
+        } catch (\Exception $e) {
+            \Log::error("[{$source}] Error in row {$rowNumber}: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => "[{$source}] Baris {$rowNumber}: " . $e->getMessage()
+            ];
         }
-
-        \Log::info("Final task data for row {$rowNumber}:", [
-            'title' => $title,
-            'description' => $description,
-            'status' => $status,
-            'due_date' => $dueDate ? $dueDate->format('Y-m-d H:i:s') : 'NULL',
-        ]);
-
-        // Create task
-        $taskData = [
-            'user_id' => Auth::id(),
-            'title' => $title,
-            'description' => $description,
-            'status' => $status,
-            'due_date' => $dueDate,
-        ];
-
-        $task = Task::create($taskData);
-
-        // Buat notifikasi
-        NotificationController::createNewTaskNotification($task);
-
-        return ['success' => true];
-
-    } catch (\Exception $e) {
-        \Log::error("Error in row {$rowNumber}: " . $e->getMessage());
-        return [
-            'success' => false,
-            'error' => "Baris {$rowNumber}: " . $e->getMessage()
-        ];
     }
-}
 
     /**
- * Download template import dengan format Indonesia + Jam
- */
-public function downloadTemplate()
-{
-    $filename = 'template-import-tugas.csv';
-    
-    $headers = [
-        'Content-Type' => 'text/csv; charset=UTF-8',
-        'Content-Disposition' => "attachment; filename=\"$filename\"",
-        'Pragma' => 'no-cache',
-        'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-        'Expires' => '0'
-    ];
-
-    $callback = function() {
-        $file = fopen('php://output', 'w');
+     * Download template import dengan format Indonesia + Jam
+     */
+    public function downloadTemplate()
+    {
+        $filename = 'template-import-tugas.csv';
         
-        // Add BOM untuk UTF-8
-        fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-        
-        // Header dengan kolom yang diperlukan untuk import
-        fputcsv($file, [
-            'JudulTugas',
-            'Deskripsi', 
-            'Status',
-            'Deadline',
-            'WaktuDeadline'
-        ], ';');
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
 
-        // Contoh data dengan jam
-        fputcsv($file, [
-            'Meeting dengan client',
-            'Presentasi progress proyek quarterly',
-            'Pending',
-            '15/01/2024',
-            '14:30'
-        ], ';');
+        $callback = function() {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM untuk UTF-8
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Header dengan kolom yang diperlukan untuk import
+            fputcsv($file, [
+                'JudulTugas',
+                'Deskripsi', 
+                'Status',
+                'Deadline',
+                'WaktuDeadline'
+            ], ';');
 
-        fputcsv($file, [
-            'Belanja bulanan',
-            'Beli bahan makanan dan kebutuhan rumah tangga',
-            'Pending', 
-            '10/01/2024',
-            '09:00'
-        ], ';');
+            // Contoh data dengan jam
+            fputcsv($file, [
+                'Meeting dengan client',
+                'Presentasi progress proyek quarterly',
+                'Pending',
+                '15/01/2024',
+                '14:30'
+            ], ';');
 
-        fputcsv($file, [
-            'Laporan keuangan',
-            'Selesaikan laporan keuangan bulanan',
-            'Selesai',
-            '05/01/2024',
-            '17:00'
-        ], ';');
+            fputcsv($file, [
+                'Belanja bulanan',
+                'Beli bahan makanan dan kebutuhan rumah tangga',
+                'Pending', 
+                '10/01/2024',
+                '09:00'
+            ], ';');
 
-        fclose($file);
-    };
+            fputcsv($file, [
+                'Laporan keuangan',
+                'Selesaikan laporan keuangan bulanan',
+                'Selesai',
+                '05/01/2024',
+                '17:00'
+            ], ';');
 
-    return Response::stream($callback, 200, $headers);
-}
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
 }
