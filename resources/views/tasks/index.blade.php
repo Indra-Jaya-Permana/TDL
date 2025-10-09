@@ -38,8 +38,8 @@
                     </div>
                 </div>
 
-
-                <a href="{{ route('tasks.import.form') }}" class="btn-import" style="background: #10b981;">
+                {{-- Tombol Import --}}
+                <a href="{{ route('tasks.import.form') }}" class="btn-export">
                     <i class="fas fa-file-import"></i>
                     <span>Import</span>
                 </a>

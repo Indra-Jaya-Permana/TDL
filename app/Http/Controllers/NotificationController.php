@@ -248,37 +248,34 @@ class NotificationController extends Controller
         return null;
     }
 
-    /**
-     * Notifikasi untuk tugas baru
-     */
     public static function createNewTaskNotification(Task $task)
-    {
-        $description = $task->description ?? 'Belum ada deskripsi untuk tugas ini.';
-        
-        // Format deadline info
-        $deadlineInfo = 'Tidak ada deadline';
-        if ($task->due_date) {
-            try {
-                $deadlineInfo = Carbon::parse($task->due_date)->format('d M Y');
-            } catch (\Exception $e) {
-                $deadlineInfo = 'Deadline tidak valid';
-            }
+{
+    $description = $task->description ?? 'Belum ada deskripsi untuk tugas ini.';
+    
+    // Format deadline info dengan jam
+    $deadlineInfo = 'Tidak ada deadline';
+    if ($task->due_date) {
+        try {
+            $deadlineInfo = Carbon::parse($task->due_date)->format('d M Y H:i');
+        } catch (\Exception $e) {
+            $deadlineInfo = 'Deadline tidak valid';
         }
-    
-        $message = "📘 <strong>Tugas:</strong> {$task->title}\n" .
-                  "📝 <strong>Deskripsi:</strong> {$description}\n" .
-                  "🗓️ <strong>Dibuat:</strong> " . $task->created_at->format('d M Y') . "\n" .
-                  "⏰ <strong>Deadline:</strong> {$deadlineInfo}\n" .
-                  "✅ Tugas baru berhasil ditambahkan!";
-    
-        Notification::create([
-            'user_id' => $task->user_id,
-            'task_id' => $task->id,
-            'type' => 'new_task',
-            'title' => '✨ Tugas Baru Ditambahkan',
-            'message' => strip_tags($message),
-        ]);
     }
+
+    $message = "📘 <strong>Tugas:</strong> {$task->title}\n" .
+              "📝 <strong>Deskripsi:</strong> {$description}\n" .
+              "🗓️ <strong>Dibuat:</strong> " . $task->created_at->format('d M Y H:i') . "\n" .
+              "⏰ <strong>Deadline:</strong> {$deadlineInfo}\n" .
+              "✅ Tugas baru berhasil ditambahkan!";
+
+    Notification::create([
+        'user_id' => $task->user_id,
+        'task_id' => $task->id,
+        'type' => 'new_task',
+        'title' => '✨ Tugas Baru Ditambahkan',
+        'message' => strip_tags($message),
+    ]);
+}
 
     /**
      * Notifikasi untuk tugas selesai

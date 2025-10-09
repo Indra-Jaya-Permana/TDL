@@ -107,25 +107,30 @@
                     <th>Deskripsi</th>
                     <th>Status</th>
                     <th>Deadline</th>
+                    <th>WaktuDeadline</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>Meeting dengan client</td>
+                    <td>Meeting client</td>
                     <td>Presentasi progress proyek</td>
                     <td>Pending</td>
                     <td>15/01/2024</td>
+                    <td>14:30</td>
                 </tr>
                 <tr>
                     <td>Belanja bulanan</td>
                     <td>Beli bahan makanan</td>
                     <td>Selesai</td>
                     <td>10/01/2024</td>
+                    <td>09:00</td>
                 </tr>
             </tbody>
         </table>
     </div>
     <small>*Kolom wajib: JudulTugas. Kolom lain optional.</small>
+    <small>Format tanggal: DD/MM/YYYY (contoh: 15/01/2024)</small>
+    <small>Format waktu: HH:MM (contoh: 14:30)</small>
     <small>Format file: CSV dengan separator titik koma (;)</small>
 </div>
 
