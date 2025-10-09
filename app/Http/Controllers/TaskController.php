@@ -340,6 +340,12 @@ public function exportToGoogleSheets()
      */
     public function import(Request $request)
     {
+            $urlString = $request->input('import_url');
+
+        // 🔽 Masukkan baris ini di sini
+        $this->processImportFromUrl($urlString);
+
+        return redirect()->back()->with('success', 'Data berhasil diimport dari URL.');
         // Validasi manual tanpa ImportTaskRequest
         $validator = Validator::make($request->all(), [
             'import_file' => 'required_without:import_url|file|mimes:csv,txt,xlsx,xls|max:10240',
@@ -350,6 +356,7 @@ public function exportToGoogleSheets()
             'import_file.max' => 'File tidak boleh lebih dari 10MB',
             'import_url.required_without' => 'URL harus diisi jika tidak menggunakan file upload',
             'import_url.url' => 'URL harus valid',
+            
         ]);
 
         if ($validator->fails()) {
@@ -392,6 +399,16 @@ public function exportToGoogleSheets()
             \Log::error("Import process failed: " . $e->getMessage());
             return back()->with('error', 'Terjadi error: ' . $e->getMessage());
         }
+            if ($request->hasFile('import_file')) {
+            $file = $request->file('import_file');
+            $filePath = $file->getRealPath();
+            $this->processCSV($filePath);
+        } elseif ($request->filled('import_url')) {
+            $urlString = $request->input('import_url');
+            $this->processImportFromUrl($urlString);
+    }
+
+    return redirect()->back()->with('success', 'Data berhasil diimport.');
     }
 
     /**
@@ -418,51 +435,52 @@ public function exportToGoogleSheets()
 /**
  * Import from URL (Google Sheets, etc) - SIMPLE WORKING VERSION
  */
-private function importFromUrl($url)
+private function processImportFromUrl(string $url)
 {
+    // Jika URL Google Sheets biasa, ubah ke export CSV
+    if (preg_match('/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)\/.*$/', $url, $matches)) {
+    $sheetId = $matches[1];
+    $url = "https://docs.google.com/spreadsheets/d/{$sheetId}/export?format=csv";
+    }
+
+    $response = Http::timeout(30)->get($url);
+
+    if (!$response->successful()) {
+        throw new \Exception('Gagal mengakses URL. Status: ' . $response->status());
+    }
+
+    $content = $response->body();
+    // Kalau masih mengandung HTML, itu berarti bukan file mentah
+    if (stripos($content, '<html') !== false || stripos($content, '<!DOCTYPE') !== false) {
+    throw new \Exception('URL tidak valid. Harus URL file CSV/TSV mentah.');
+    }
+
+    // Deteksi separator
+    $separator = ',';
+    if (strpos($content, "\t") !== false) {
+        $separator = "\t";
+    } elseif (strpos($content, ';') !== false) {
+        $separator = ';';
+    }
+
+    $this->processCSVContentWithSeparator($content, $separator);
+}
+
+
+public function importFromUrl(Request $request)
+{
+    $request->validate([
+        'url' => 'required|url',
+    ]);
+
     try {
-        \Log::info("Starting URL import from: {$url}");
+        $url = $request->input('url');
+        $this->processImportFromUrl($url);
 
-        $response = Http::timeout(30)->get($url);
-        
-        if (!$response->successful()) {
-            throw new \Exception('Tidak dapat mengakses URL');
-        }
-
-        $content = $response->body();
-        \Log::info("URL content length: " . strlen($content));
-        \Log::info("URL content sample: " . substr($content, 0, 200));
-
-        // Simpan temporary file dan proses seperti file biasa
-        $tempFile = tempnam(sys_get_temp_dir(), 'import_');
-        file_put_contents($tempFile, $content);
-
-        // Deteksi extension dari URL atau content
-        $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
-        
-        if (empty($extension)) {
-            // Coba deteksi dari content
-            if (strpos($content, "\t") !== false) {
-                $result = $this->processTSVContent($content);
-            } else {
-                // Default ke CSV dengan auto-detect separator
-                $separator = (strpos($content, ';') !== false) ? ';' : ',';
-                \Log::info("Auto-detected separator: '{$separator}'");
-                
-                $result = $this->processCSVContentWithSeparator($content, $separator);
-            }
-        } elseif (in_array($extension, ['csv', 'txt'])) {
-            $result = $this->processCSV($tempFile);
-        } else {
-            throw new \Exception('Format URL tidak didukung: ' . $extension);
-        }
-
-        unlink($tempFile);
-        return $result;
-
+        return back()->with('success', 'Import tugas dari URL berhasil.');
     } catch (\Exception $e) {
-        \Log::error("URL import failed: " . $e->getMessage());
-        throw new \Exception('Error mengimport dari URL: ' . $e->getMessage());
+        \Log::error('Import from URL error: ' . $e->getMessage());
+        return back()->with('error', 'Terjadi kesalahan saat import: ' . $e->getMessage());
     }
 }
 
